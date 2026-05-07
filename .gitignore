@@ -1,0 +1,101 @@
+# ============================================
+# NKWA MICROFINANCE SYSTEM
+# Git Ignore File
+# ============================================
+
+# Database backups
+/backups/
+*.sql.gz
+!sql/database.sql
+
+# Configuration files with sensitive data
+config/database.php
+config/config.local.php
+
+# Environment files
+.env
+.env.local
+.env.production
+
+# Upload directories
+/assets/uploads/customers/*
+/assets/uploads/documents/*
+!/assets/uploads/customers/index.html
+!/assets/uploads/documents/index.html
+
+# Log files
+/logs/
+*.log
+
+# Error logs
+error.log
+php_error.log
+
+# Cache files
+/cache/
+*.cache
+__pycache__/
+
+# Temporary files
+/tmp/
+/temp/
+*.tmp
+*.temp
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+
+# IDE and Editor files
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+
+# Node modules (if using npm)
+node_modules/
+package-lock.json
+
+# Composer (if using composer)
+vendor/
+composer.lock
+
+# Backup files
+*.bak
+*.old
+*.orig
+
+# Archive files
+*.zip
+*.tar
+*.tar.gz
+*.rar
+
+# Compiled files
+*.pyc
+*.pyo
+*.class
+
+# Filemaker Pro
+*.fp7
+
+# Excel temporary files
+~$*.xls*
+~$*.doc*
+
+# Keep specific files
+!README.md
+!.gitignore
+!.htaccess

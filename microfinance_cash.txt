@@ -1,0 +1,143 @@
+microfinance-system/
+│
+├── assets/
+│   ├── css/
+│   │   ├── style.css
+│   │   └── custom.css
+│   │
+│   ├── js/
+│   │   ├── main.js
+│   │   └── validation.js
+│   │
+│   ├── images/
+│   │   ├── logo.png
+│   │   └── default-avatar.png
+│   │
+│   └── uploads/
+│       ├── customers/
+│       └── documents/
+│
+├── config/
+│   ├── database.php          # Database connection (PDO)
+│   ├── config.php            # Application configuration constants
+│   └── init.php              # Session start and autoload
+│
+├── includes/
+│   ├── header.php            # Common header HTML
+│   ├── footer.php            # Common footer HTML
+│   ├── sidebar.php           # Dynamic sidebar (changes based on user type)
+│   ├── functions.php         # Common helper functions
+│   ├── auth_check.php        # Authentication middleware (both users)
+│   ├── admin_check.php       # Admin-only access check
+│   └── employee_check.php    # Employee-only access check
+│
+├── classes/
+│   ├── Database.php          # Database class
+│   ├── User.php              # User management class
+│   ├── Customer.php          # Customer management class
+│   ├── Savings.php           # Savings operations class
+│   ├── Loan.php              # Loan operations class
+│   └── Validation.php        # Input validation class
+│
+├── admin/                    # Admin modules only
+│   ├── dashboard.php         # Admin-specific dashboard
+│   │
+│   ├── users/                # User/employee management
+│   │   ├── index.php         # List all users
+│   │   ├── add.php           # Add new user
+│   │   ├── edit.php          # Edit user
+│   │   ├── delete.php        # Delete/deactivate user
+│   │   └── view.php          # View user details
+│   │
+│   ├── products/             # Loan product management
+│   │   ├── index.php         # List loan products
+│   │   ├── add.php           # Add loan product
+│   │   ├── edit.php          # Edit loan product
+│   │   └── delete.php        # Delete loan product
+│   │
+│   ├── customers/            # Customer management (admin override)
+│   │   ├── index.php         # View all customers
+│   │   ├── view.php          # View customer details
+│   │   └── blacklist.php     # Blacklist customer
+│   │
+│   ├── loans/                # Loan approvals & oversight
+│   │   ├── approve.php       # Approve pending loans
+│   │   ├── write_off.php     # Write off bad loans
+│   │   └── restructure.php   # Restructure loans
+│   │
+│   ├── reports/              # Advanced reports
+│   │   ├── index.php         # Reports dashboard
+│   │   ├── portfolio.php     # Portfolio at risk
+│   │   ├── profit_loss.php   # P&L report
+│   │   ├── transactions.php  # All transactions log
+│   │   └── audit_trail.php   # System audit trail
+│   │
+│   └── settings/             # System settings
+│       ├── index.php         # General settings
+│       ├── company.php       # Company profile
+│       └── backup.php        # Database backup
+│
+├── employee/                 # Employee modules only
+│   ├── dashboard.php         # Employee-specific dashboard
+│   │
+│   ├── customers/            # Customer management
+│   │   ├── index.php         # List assigned customers
+│   │   ├── add.php           # Add new customer
+│   │   ├── edit.php          # Edit customer
+│   │   ├── view.php          # View customer details
+│   │   └── search.php        # Search customers
+│   │
+│   ├── savings/              # Savings/Susu operations
+│   │   ├── index.php         # Savings accounts list
+│   │   ├── create.php        # Create savings account
+│   │   ├── deposit.php       # Make deposit
+│   │   ├── withdraw.php      # Make withdrawal
+│   │   ├── statement.php     # Account statement
+│   │   └── close.php         # Close account
+│   │
+│   ├── loans/                # Loan operations
+│   │   ├── index.php         # Loans list
+│   │   ├── create.php        # Create new loan application
+│   │   ├── disburse.php      # Disburse approved loan
+│   │   ├── repay.php         # Make repayment
+│   │   ├── schedule.php      # View repayment schedule
+│   │   └── history.php       # Loan history
+│   │
+│   ├── collections/          # Daily collections
+│   │   ├── index.php         # Today's collections
+│   │   ├── record.php        # Record collection
+│   │   └── history.php       # Collection history
+│   │
+│   └── reports/              # Basic reports
+│       ├── index.php         # Reports dashboard
+│       ├── daily.php         # Daily report
+│       ├── customer.php      # Customer report
+│       └── my_performance.php # Employee performance
+│
+├── auth/                     # Authentication (shared)
+│   ├── login.php             # Login page
+│   ├── logout.php            # Logout script
+│   └── change_password.php   # Change password
+│
+├── shared/                   # Shared modules (both roles)
+│   ├── profile.php           # View/Edit own profile
+│   └── help.php              # Help documentation
+│
+├── sql/
+│   └── database.sql          # Database schema
+│
+├── index.php                 # Entry point (redirect based on role)
+├── 404.php                   # Custom error page
+├── .htaccess                 # URL rewriting & security
+├── .gitignore
+└── README.md
+
+
+Default Login Credentials:
+Admin: username: admin, password: admin123
+
+Employee: username: employee1, password: employee123
+
+Admin: username admin / password admin123
+Employee 1: username employee1 / password employee123
+Employee 2: username employee2 / password employee123
