@@ -1,6 +1,6 @@
 <?php
 /**
- * Nkwa Microfinance System
+ * Microfinance System
  * Entry Point - Redirects based on user role or shows landing page
  */
 
@@ -20,11 +20,11 @@ if (isset($_SESSION['user_id'])) {
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title><?php echo companyName(); ?> - Microfinance Management System</title>
     
     <!-- Favicon -->
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><path fill='%23ffd700' d='M8.277.084a.5.5 0 0 0-.554 0l-7.5 5A.5.5 0 0 0 .5 6h1.875v7H1.5a.5.5 0 0 0 0 1h13a.5.5 0 0 0 0-1h-.875V6H15.5a.5.5 0 0 0 .277-.916l-7.5-5zM12.375 6v7h-1.25V6h1.25zm-2.5 0v7h-1.25V6h1.25zm-2.5 0v7h-1.25V6h1.25zm-2.5 0v7h-1.25V6h1.25zM8 1.574L13.076 5H2.924L8 1.574z'/></svg>">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><path fill='%23ffd700' d='M8.277.084a.5.5 0 0 0-.554 0l-7.5 5A.5.5 0 0 0 .5 6h1.875v7H1.5a.5.5 0 0 0 0 1h13a.5.5 0 0 0 0-1h-.875V6H15.5a.5.5 0 0 0 .277-.916l-7.5-5z'/></svg>">
     
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -42,16 +42,22 @@ if (isset($_SESSION['user_id'])) {
             box-sizing: border-box;
         }
 
+        html {
+            height: 100%;
+        }
+
         body {
             font-family: 'Poppins', sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
+            min-height: 100dvh; /* Dynamic viewport height for mobile */
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 20px;
+            padding: 15px;
             position: relative;
-            overflow: hidden;
+            overflow-x: hidden;
+            overflow-y: auto; /* Allow scrolling on mobile */
         }
 
         /* Animated Background */
@@ -97,26 +103,27 @@ if (isset($_SESSION['user_id'])) {
             position: relative;
             z-index: 1;
             width: 100%;
-            max-width: 450px;
+            max-width: 420px;
+            margin: auto;
         }
 
         /* Logo Section */
         .logo-section {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 25px;
             color: white;
         }
 
         .logo-icon {
-            width: 90px;
-            height: 90px;
+            width: 70px;
+            height: 70px;
             background: rgba(255, 255, 255, 0.15);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0 auto 15px;
-            font-size: 2.5rem;
+            margin: 0 auto 12px;
+            font-size: 2rem;
             color: #ffd700;
             border: 3px solid rgba(255, 215, 0, 0.3);
             backdrop-filter: blur(10px);
@@ -124,22 +131,24 @@ if (isset($_SESSION['user_id'])) {
 
         .logo-section h1 {
             font-weight: 700;
-            font-size: 1.8rem;
-            margin-bottom: 5px;
+            font-size: 1.5rem;
+            margin-bottom: 3px;
             color: white;
+            line-height: 1.3;
+            word-wrap: break-word;
         }
 
         .logo-section p {
             opacity: 0.8;
-            font-size: 0.95rem;
+            font-size: 0.85rem;
             color: rgba(255, 255, 255, 0.9);
         }
 
         /* Login Card */
         .login-card {
             background: white;
-            border-radius: 20px;
-            padding: 35px;
+            border-radius: 16px;
+            padding: 25px 20px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
         }
 
@@ -148,120 +157,109 @@ if (isset($_SESSION['user_id'])) {
             font-weight: 600;
             margin-bottom: 5px;
             text-align: center;
-            font-size: 1.3rem;
+            font-size: 1.2rem;
         }
 
         .login-card .subtitle {
             color: #666;
-            font-size: 0.9rem;
-            margin-bottom: 25px;
+            font-size: 0.85rem;
+            margin-bottom: 20px;
             text-align: center;
         }
 
         /* Login Buttons */
-        .btn-admin-login {
-            display: block;
-            width: 100%;
-            padding: 18px 20px;
-            background: white;
-            border: 2px solid #e74c3c;
-            border-radius: 12px;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            text-align: left;
-            margin-bottom: 15px;
-        }
-
-        .btn-admin-login:hover {
-            background: #e74c3c;
-            border-color: #e74c3c;
-            transform: translateY(-3px);
-            box-shadow: 0 10px 25px rgba(231, 76, 60, 0.3);
-        }
-
-        .btn-admin-login:hover * {
-            color: white !important;
-        }
-
-        .btn-admin-login strong {
-            color: #333;
-            display: block;
-            font-size: 1rem;
-        }
-
-        .btn-admin-login small {
-            color: #999;
-            font-size: 0.8rem;
-        }
-
+        .btn-admin-login,
         .btn-employee-login {
             display: block;
             width: 100%;
-            padding: 18px 20px;
+            padding: 15px;
             background: white;
-            border: 2px solid #667eea;
             border-radius: 12px;
             text-decoration: none;
             transition: all 0.3s ease;
             text-align: left;
+            margin-bottom: 12px;
         }
 
-        .btn-employee-login:hover {
-            background: #667eea;
-            border-color: #667eea;
-            transform: translateY(-3px);
-            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        .btn-admin-login {
+            border: 2px solid #e74c3c;
         }
 
-        .btn-employee-login:hover * {
+        .btn-admin-login:hover,
+        .btn-admin-login:active {
+            background: #e74c3c;
+            border-color: #e74c3c;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(231, 76, 60, 0.3);
+        }
+
+        .btn-admin-login:hover *,
+        .btn-admin-login:active * {
             color: white !important;
         }
 
+        .btn-employee-login {
+            border: 2px solid #667eea;
+        }
+
+        .btn-employee-login:hover,
+        .btn-employee-login:active {
+            background: #667eea;
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-employee-login:hover *,
+        .btn-employee-login:active * {
+            color: white !important;
+        }
+
+        .btn-admin-login strong,
         .btn-employee-login strong {
             color: #333;
             display: block;
-            font-size: 1rem;
+            font-size: 0.95rem;
+            line-height: 1.3;
         }
 
+        .btn-admin-login small,
         .btn-employee-login small {
             color: #999;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
         }
 
-        .login-icon-admin {
-            width: 50px;
-            height: 50px;
-            background: #fdecea;
-            border-radius: 12px;
+        .login-icon-admin,
+        .login-icon-employee {
+            width: 45px;
+            height: 45px;
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.5rem;
-            color: #e74c3c;
+            font-size: 1.3rem;
             transition: all 0.3s ease;
             flex-shrink: 0;
         }
 
-        .btn-admin-login:hover .login-icon-admin {
+        .login-icon-admin {
+            background: #fdecea;
+            color: #e74c3c;
+        }
+
+        .btn-admin-login:hover .login-icon-admin,
+        .btn-admin-login:active .login-icon-admin {
             background: rgba(255,255,255,0.2);
             color: white;
         }
 
         .login-icon-employee {
-            width: 50px;
-            height: 50px;
             background: #eef1fd;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
             color: #667eea;
-            transition: all 0.3s ease;
-            flex-shrink: 0;
         }
 
-        .btn-employee-login:hover .login-icon-employee {
+        .btn-employee-login:hover .login-icon-employee,
+        .btn-employee-login:active .login-icon-employee {
             background: rgba(255,255,255,0.2);
             color: white;
         }
@@ -269,9 +267,10 @@ if (isset($_SESSION['user_id'])) {
         /* Footer */
         .footer-text {
             text-align: center;
-            margin-top: 25px;
+            margin-top: 20px;
             color: rgba(255, 255, 255, 0.7);
-            font-size: 0.85rem;
+            font-size: 0.8rem;
+            padding-bottom: 10px;
         }
 
         .footer-text a {
@@ -284,20 +283,146 @@ if (isset($_SESSION['user_id'])) {
             color: white;
         }
 
-        /* Responsive */
-        @media (max-width: 576px) {
+        /* Mobile Responsive */
+        @media (max-width: 480px) {
+            body {
+                padding: 12px;
+                align-items: flex-start;
+                padding-top: 30px;
+            }
+
+            .main-container {
+                max-width: 100%;
+            }
+
             .login-card {
-                padding: 25px 20px;
+                padding: 20px 15px;
+                border-radius: 14px;
             }
-            
-            .logo-section h1 {
-                font-size: 1.5rem;
+
+            .logo-section {
+                margin-bottom: 20px;
             }
-            
+
             .logo-icon {
-                width: 70px;
-                height: 70px;
-                font-size: 2rem;
+                width: 60px;
+                height: 60px;
+                font-size: 1.6rem;
+                border-width: 2px;
+            }
+
+            .logo-section h1 {
+                font-size: 1.3rem;
+            }
+
+            .logo-section p {
+                font-size: 0.8rem;
+            }
+
+            .login-card h3 {
+                font-size: 1.1rem;
+            }
+
+            .login-card .subtitle {
+                font-size: 0.8rem;
+                margin-bottom: 15px;
+            }
+
+            .btn-admin-login,
+            .btn-employee-login {
+                padding: 12px 15px;
+            }
+
+            .btn-admin-login strong,
+            .btn-employee-login strong {
+                font-size: 0.9rem;
+            }
+
+            .btn-admin-login small,
+            .btn-employee-login small {
+                font-size: 0.7rem;
+            }
+
+            .login-icon-admin,
+            .login-icon-employee {
+                width: 40px;
+                height: 40px;
+                font-size: 1.1rem;
+                border-radius: 8px;
+            }
+
+            .footer-text {
+                font-size: 0.75rem;
+                margin-top: 15px;
+            }
+        }
+
+        @media (max-width: 360px) {
+            body {
+                padding: 10px;
+                padding-top: 20px;
+            }
+
+            .login-card {
+                padding: 18px 12px;
+            }
+
+            .logo-icon {
+                width: 50px;
+                height: 50px;
+                font-size: 1.4rem;
+            }
+
+            .logo-section h1 {
+                font-size: 1.2rem;
+            }
+
+            .btn-admin-login,
+            .btn-employee-login {
+                padding: 10px 12px;
+            }
+
+            .login-icon-admin,
+            .login-icon-employee {
+                width: 35px;
+                height: 35px;
+                font-size: 1rem;
+            }
+
+            .btn-admin-login strong,
+            .btn-employee-login strong {
+                font-size: 0.85rem;
+            }
+
+            .btn-admin-login small,
+            .btn-employee-login small {
+                font-size: 0.65rem;
+            }
+        }
+
+        /* For very small screens */
+        @media (max-height: 600px) {
+            body {
+                align-items: flex-start;
+                padding-top: 15px;
+            }
+
+            .logo-section {
+                margin-bottom: 15px;
+            }
+
+            .logo-icon {
+                width: 50px;
+                height: 50px;
+                font-size: 1.4rem;
+            }
+
+            .logo-section h1 {
+                font-size: 1.2rem;
+            }
+
+            .logo-section p {
+                font-size: 0.75rem;
             }
         }
     </style>
