@@ -76,6 +76,7 @@ include '../../includes/header.php';
                     <tr><td><strong>Address:</strong></td><td><?php echo $customer['address'] ? htmlspecialchars($customer['address']) : 'N/A'; ?></td></tr>
                     <tr><td><strong>City:</strong></td><td><?php echo $customer['city'] ?? 'N/A'; ?></td></tr>
                     <tr><td><strong>Region:</strong></td><td><?php echo $customer['region'] ?? 'N/A'; ?></td></tr>
+                    <tr><td><strong>Agent:</strong></td><td><?php echo getAgentName($customer['agent_id']); ?></td></tr>
                     <tr><td><strong>Created By:</strong></td><td><?php echo htmlspecialchars($customer['created_by_name'] ?? 'N/A'); ?></td></tr>
                 </table>
             </div>
@@ -165,6 +166,9 @@ include '../../includes/header.php';
 <div class="mt-3">
     <a href="index.php" class="btn btn-secondary">
         <i class="bi bi-arrow-left"></i> Back to Customers
+    </a>
+    <a href="edit.php?id=<?php echo $customer['id']; ?>" class="btn btn-warning">
+        <i class="bi bi-pencil"></i> Edit Customer
     </a>
     <?php if ($customer['status'] != 'blacklisted'): ?>
     <a href="blacklist.php?id=<?php echo $customer['id']; ?>" 

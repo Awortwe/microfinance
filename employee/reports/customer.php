@@ -85,7 +85,6 @@ include '../../includes/header.php';
     </div>
     <div class="card-body">
         <div class="table-responsive">
-            <!-- NO datatable class - plain table -->
             <table class="table table-hover">
                 <thead class="table-light">
                     <tr>
@@ -93,6 +92,7 @@ include '../../includes/header.php';
                         <th>Customer Name</th>
                         <th>Phone</th>
                         <th>City</th>
+                        <th>Agent</th>
                         <th>Savings A/Cs</th>
                         <th>Total Savings</th>
                         <th>Active Loans</th>
@@ -115,6 +115,7 @@ include '../../includes/header.php';
                             </td>
                             <td><?php echo htmlspecialchars($customer['phone']); ?></td>
                             <td><?php echo $customer['city'] ? htmlspecialchars($customer['city']) : 'N/A'; ?></td>
+                            <td><small><?php echo getAgentName($customer['agent_id']); ?></small></td>
                             <td class="text-center">
                                 <?php if ($customer['savings_count'] > 0): ?>
                                     <span class="badge bg-success"><?php echo $customer['savings_count']; ?></span>
@@ -139,7 +140,7 @@ include '../../includes/header.php';
                             </td>
                             <td>
                                 <a href="../customers/view.php?id=<?php echo $customer['id']; ?>" 
-                                   class="btn btn-sm btn-info" title="View">
+                                   class="btn btn-sm btn-info" title="View Details">
                                     <i class="bi bi-eye"></i>
                                 </a>
                             </td>
@@ -147,7 +148,7 @@ include '../../includes/header.php';
                         <?php endforeach; ?>
                     <?php else: ?>
                         <tr>
-                            <td colspan="11" class="text-center py-4">
+                            <td colspan="12" class="text-center py-4">
                                 <i class="bi bi-people display-4 text-muted"></i>
                                 <p class="text-muted mb-0 mt-2">No customers found</p>
                             </td>
@@ -157,7 +158,7 @@ include '../../includes/header.php';
                 <?php if (count($customers) > 0): ?>
                 <tfoot class="table-secondary fw-bold">
                     <tr>
-                        <td colspan="4">Totals (<?php echo count($customers); ?> customers)</td>
+                        <td colspan="5">Totals (<?php echo count($customers); ?> customers)</td>
                         <td class="text-center"><?php echo $total_savings_count; ?></td>
                         <td class="text-success"><?php echo formatMoney($total_savings); ?></td>
                         <td class="text-center"><?php echo $total_active_loans; ?></td>

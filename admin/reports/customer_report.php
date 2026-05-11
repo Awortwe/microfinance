@@ -15,6 +15,7 @@ $gender = $_GET['gender'] ?? '';
 $created_by = $_GET['created_by'] ?? '';
 $date_from = $_GET['date_from'] ?? '';
 $date_to = $_GET['date_to'] ?? '';
+$agent_id = $_GET['agent_id'] ?? '';
 
 // Build query
 $query = "SELECT 
@@ -47,6 +48,11 @@ if ($created_by) {
     $params[':created_by'] = $created_by;
 }
 
+if ($agent_id) {
+    $query .= " AND c.agent_id = :agent_id";
+    $params[':agent_id'] = $agent_id;
+}
+
 if ($date_from) {
     $query .= " AND DATE(c.created_at) >= :date_from";
     $params[':date_from'] = $date_from;
@@ -73,6 +79,9 @@ $summary = dbSingle("SELECT
 
 // Get employees for filter
 $employees = dbQuery("SELECT id, full_name FROM users WHERE user_type = 'employee' AND is_active = 1 ORDER BY full_name");
+
+// Get agents for filter
+$agents = getActiveAgents();
 
 // Get customer growth by month (last 12 months)
 $growth = dbQuery(
@@ -173,12 +182,19 @@ include '../../includes/header.php';
                 </select>
             </div>
             <div class="col-md-2">
-                <label class="form-label">Date From</label>
-                <input type="date" name="date_from" class="form-control" value="<?php echo $date_from; ?>">
+                <label class="form-label">Agent</label>
+                <select name="agent_id" class="form-select">
+                    <option value="">All Agents</option>
+                    <?php foreach ($agents as $agt): ?>
+                        <option value="<?php echo $agt['id']; ?>" <?php echo $agent_id == $agt['id'] ? 'selected' : ''; ?>>
+                            <?php echo htmlspecialchars($agt['first_name'] . ' ' . $agt['last_name']); ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
             </div>
             <div class="col-md-2">
-                <label class="form-label">Date To</label>
-                <input type="date" name="date_to" class="form-control" value="<?php echo $date_to; ?>">
+                <label class="form-label">Date From</label>
+                <input type="date" name="date_from" class="form-control" value="<?php echo $date_from; ?>">
             </div>
             <div class="col-md-2">
                 <label class="form-label">&nbsp;</label>
@@ -219,7 +235,6 @@ include '../../includes/header.php';
     </div>
     <div class="card-body">
         <div class="table-responsive">
-            <!-- NO datatable class - plain table with PHP filters -->
             <table class="table table-hover">
                 <thead class="table-light">
                     <tr>
@@ -228,6 +243,7 @@ include '../../includes/header.php';
                         <th>Phone</th>
                         <th>Gender</th>
                         <th>Status</th>
+                        <th>Agent</th>
                         <th>Savings A/Cs</th>
                         <th>Total Savings</th>
                         <th>Loans</th>
@@ -252,6 +268,7 @@ include '../../includes/header.php';
                             <td><?php echo htmlspecialchars($customer['phone']); ?></td>
                             <td><?php echo $customer['gender'] ?? 'N/A'; ?></td>
                             <td><?php echo getStatusBadge($customer['status'], 'customer'); ?></td>
+                            <td><small><?php echo getAgentName($customer['agent_id']); ?></small></td>
                             <td class="text-center">
                                 <?php if ($customer['savings_count'] > 0): ?>
                                     <span class="badge bg-success"><?php echo $customer['savings_count']; ?></span>
@@ -280,7 +297,7 @@ include '../../includes/header.php';
                         <?php endforeach; ?>
                     <?php else: ?>
                         <tr>
-                            <td colspan="13" class="text-center py-4">
+                            <td colspan="14" class="text-center py-4">
                                 <i class="bi bi-people display-4 text-muted"></i>
                                 <p class="text-muted mb-0 mt-2">No customers found matching your criteria</p>
                                 <a href="customer_report.php" class="btn btn-sm btn-outline-primary mt-2">Clear Filters</a>
@@ -291,7 +308,7 @@ include '../../includes/header.php';
                 <?php if (count($customers) > 0): ?>
                 <tfoot class="table-secondary fw-bold">
                     <tr>
-                        <td colspan="5">Totals (<?php echo count($customers); ?> customers)</td>
+                        <td colspan="6">Totals (<?php echo count($customers); ?> customers)</td>
                         <td class="text-center"><?php echo array_sum(array_column($customers, 'savings_count')); ?></td>
                         <td class="text-success"><?php echo formatMoney(array_sum(array_column($customers, 'total_savings'))); ?></td>
                         <td><?php echo array_sum(array_column($customers, 'total_loans')); ?></td>
@@ -315,7 +332,6 @@ include '../../includes/header.php';
 
 <?php if (count($growth) > 0): ?>
 <script>
-// Customer Growth Chart
 const ctx = document.getElementById('growthChart').getContext('2d');
 const months = [<?php 
     $labels = [];

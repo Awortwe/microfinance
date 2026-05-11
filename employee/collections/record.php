@@ -15,6 +15,9 @@ $collection_type = $_GET['type'] ?? 'loan'; // loan or savings
 // Get customers for dropdown
 $customers = dbQuery("SELECT id, customer_code, first_name, last_name, phone FROM customers WHERE status = 'active' ORDER BY first_name");
 
+// Get active agents for dropdown
+$agents = getActiveAgents();
+
 // Get active loans for dropdown
 $active_loans = [];
 if ($collection_type == 'loan') {
@@ -47,6 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $payment_method = $_POST['payment_method'] ?? 'cash';
     $reference = $_POST['reference_number'] ?? '';
     $notes = $_POST['notes'] ?? '';
+    $agent_id = $_POST['agent_id'] ?? null;
     
     if ($amount <= 0) {
         $errors[] = 'Valid amount is required';
@@ -77,10 +81,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         
                         $db->query("INSERT INTO loan_repayments 
                                  (loan_id, amount, principal_paid, interest_paid, balance_before, balance_after,
-                                  payment_date, payment_time, payment_method, reference_number, notes, processed_by)
+                                  payment_date, payment_time, payment_method, reference_number, notes, agent_id, processed_by)
                                  VALUES 
                                  (:loan_id, :amount, :principal, :interest, :balance_before, :balance_after,
-                                  CURDATE(), CURTIME(), :method, :reference, :notes, :processed_by)");
+                                  CURDATE(), CURTIME(), :method, :reference, :notes, :agent_id, :processed_by)");
                         
                         $db->bindMultiple([
                             ':loan_id' => $loan_id,
@@ -92,6 +96,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             ':method' => $payment_method,
                             ':reference' => $reference,
                             ':notes' => $notes,
+                            ':agent_id' => $agent_id,
                             ':processed_by' => $_SESSION['user_id']
                         ]);
                         $db->execute();
@@ -140,10 +145,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         
                         $db->query("INSERT INTO savings_transactions 
                                  (account_id, transaction_type, amount, balance_before, balance_after,
-                                  description, transaction_date, transaction_time, payment_method, processed_by)
+                                  description, transaction_date, transaction_time, payment_method, agent_id, processed_by)
                                  VALUES 
                                  (:account_id, 'deposit', :amount, :balance_before, :balance_after,
-                                  :description, CURDATE(), CURTIME(), :method, :processed_by)");
+                                  :description, CURDATE(), CURTIME(), :method, :agent_id, :processed_by)");
                         
                         $db->bindMultiple([
                             ':account_id' => $account_id,
@@ -152,6 +157,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             ':balance_after' => $balance_after,
                             ':description' => $notes ?: 'Collection deposit',
                             ':method' => $payment_method,
+                            ':agent_id' => $agent_id,
                             ':processed_by' => $_SESSION['user_id']
                         ]);
                         $db->execute();
@@ -244,11 +250,11 @@ include '../../includes/header.php';
                     <div id="loanInfo" class="alert alert-info" style="display:none;">
                         <div class="row">
                             <div class="col-6">
-                                <small><strong>Balance:</strong></small><br>
+                                <small><strong>Outstanding Balance:</strong></small><br>
                                 <span id="loanBalance" class="fw-bold text-danger">-</span>
                             </div>
                             <div class="col-6">
-                                <small><strong>Monthly:</strong></small><br>
+                                <small><strong>Monthly Payment:</strong></small><br>
                                 <span id="monthlyPayment" class="fw-bold">-</span>
                             </div>
                         </div>
@@ -272,6 +278,20 @@ include '../../includes/header.php';
                         <span id="accountBalance" class="fw-bold">-</span>
                     </div>
                     <?php endif; ?>
+                    
+                    <!-- Agent Selection -->
+                    <div class="mb-3">
+                        <label class="form-label">Collected By (Agent)</label>
+                        <select name="agent_id" class="form-select">
+                            <option value="">Select Agent (Optional)</option>
+                            <?php foreach ($agents as $agt): ?>
+                                <option value="<?php echo $agt['id']; ?>" <?php echo (isset($_POST['agent_id']) && $_POST['agent_id'] == $agt['id']) ? 'selected' : ''; ?>>
+                                    <?php echo htmlspecialchars($agt['first_name'] . ' ' . $agt['last_name'] . ' - ' . $agt['phone']); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                        <small class="text-muted">Select the agent who collected this payment</small>
+                    </div>
                     
                     <div class="mb-3">
                         <label class="form-label">Amount (GHS) *</label>

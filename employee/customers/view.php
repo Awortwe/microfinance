@@ -11,7 +11,6 @@ $breadcrumb = [
 
 $customer_id = $_GET['id'] ?? 0;
 
-// Get customer details
 $customer = dbSingle("SELECT * FROM customers WHERE id = :id", [':id' => $customer_id]);
 
 if (!$customer) {
@@ -19,13 +18,11 @@ if (!$customer) {
     redirect('index.php');
 }
 
-// Get savings accounts
 $savings_accounts = dbQuery(
     "SELECT * FROM savings_accounts WHERE customer_id = :id ORDER BY opened_date DESC",
     [':id' => $customer_id]
 );
 
-// Get loans
 $loans = dbQuery(
     "SELECT l.*, lp.product_name FROM loans l 
      JOIN loan_products lp ON l.product_id = lp.id 
@@ -37,7 +34,6 @@ include '../../includes/header.php';
 ?>
 
 <div class="row">
-    <!-- Customer Profile -->
     <div class="col-md-4">
         <div class="card">
             <div class="card-body text-center">
@@ -68,14 +64,13 @@ include '../../includes/header.php';
                     <tr><td><strong>Address:</strong></td><td><?php echo $customer['address'] ?: 'N/A'; ?></td></tr>
                     <tr><td><strong>City:</strong></td><td><?php echo $customer['city'] ?: 'N/A'; ?></td></tr>
                     <tr><td><strong>Region:</strong></td><td><?php echo $customer['region'] ?: 'N/A'; ?></td></tr>
+                    <tr><td><strong>Agent:</strong></td><td><?php echo getAgentName($customer['agent_id']); ?></td></tr>
                 </table>
             </div>
         </div>
     </div>
 
-    <!-- Accounts & Loans -->
     <div class="col-md-8">
-        <!-- Savings Accounts -->
         <div class="card mb-3">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h6 class="mb-0"><i class="bi bi-piggy-bank"></i> Savings Accounts</h6>
@@ -88,14 +83,7 @@ include '../../includes/header.php';
                     <div class="table-responsive">
                         <table class="table table-sm">
                             <thead>
-                                <tr>
-                                    <th>Account #</th>
-                                    <th>Type</th>
-                                    <th>Balance</th>
-                                    <th>Status</th>
-                                    <th>Opened</th>
-                                    <th>Action</th>
-                                </tr>
+                                <tr><th>Account #</th><th>Type</th><th>Balance</th><th>Status</th><th>Opened</th><th>Action</th></tr>
                             </thead>
                             <tbody>
                                 <?php foreach ($savings_accounts as $acc): ?>
@@ -119,7 +107,6 @@ include '../../includes/header.php';
             </div>
         </div>
 
-        <!-- Loans -->
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h6 class="mb-0"><i class="bi bi-cash-stack"></i> Loans</h6>
@@ -132,14 +119,7 @@ include '../../includes/header.php';
                     <div class="table-responsive">
                         <table class="table table-sm">
                             <thead>
-                                <tr>
-                                    <th>Loan #</th>
-                                    <th>Product</th>
-                                    <th>Amount</th>
-                                    <th>Balance</th>
-                                    <th>Status</th>
-                                    <th>Action</th>
-                                </tr>
+                                <tr><th>Loan #</th><th>Product</th><th>Amount</th><th>Balance</th><th>Status</th><th>Action</th></tr>
                             </thead>
                             <tbody>
                                 <?php foreach ($loans as $loan): ?>

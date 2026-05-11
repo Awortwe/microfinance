@@ -12,7 +12,6 @@ $breadcrumb = [
 $customer_id = $_GET['id'] ?? 0;
 $errors = [];
 
-// Get customer data
 $customer = dbSingle("SELECT * FROM customers WHERE id = :id", [':id' => $customer_id]);
 
 if (!$customer) {
@@ -37,8 +36,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $date_of_birth = $_POST['date_of_birth'] ?? '';
     $gender = $_POST['gender'] ?? '';
     $marital_status = $_POST['marital_status'] ?? '';
+    $agent_id = $_POST['agent_id'] ?? null;
     
-    // Validate
     if (empty($first_name)) $errors[] = 'First name is required';
     if (empty($last_name)) $errors[] = 'Last name is required';
     if (empty($phone)) $errors[] = 'Phone number is required';
@@ -52,25 +51,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
              id_type = :id_type, id_number = :id_number,
              occupation = :occupation, business_name = :business_name,
              business_address = :business_address, date_of_birth = :dob,
-             gender = :gender, marital_status = :marital_status
+             gender = :gender, marital_status = :marital_status,
+             agent_id = :agent_id
              WHERE id = :id",
             [
-                ':first_name' => $first_name,
-                ':last_name' => $last_name,
-                ':email' => $email ?: null,
-                ':phone' => $phone,
+                ':first_name' => $first_name, ':last_name' => $last_name,
+                ':email' => $email ?: null, ':phone' => $phone,
                 ':alt_phone' => $alternate_phone ?: null,
-                ':address' => $address ?: null,
-                ':city' => $city ?: null,
-                ':region' => $region ?: null,
-                ':id_type' => $id_type ?: null,
-                ':id_number' => $id_number ?: null,
+                ':address' => $address ?: null, ':city' => $city ?: null, ':region' => $region ?: null,
+                ':id_type' => $id_type ?: null, ':id_number' => $id_number ?: null,
                 ':occupation' => $occupation ?: null,
                 ':business_name' => $business_name ?: null,
                 ':business_address' => $business_address ?: null,
                 ':dob' => $date_of_birth ?: null,
-                ':gender' => $gender ?: null,
-                ':marital_status' => $marital_status ?: null,
+                ':gender' => $gender ?: null, ':marital_status' => $marital_status ?: null,
+                ':agent_id' => $agent_id ?: null,
                 ':id' => $customer_id
             ]
         );
@@ -80,6 +75,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         redirect('view.php?id=' . $customer_id);
     }
 }
+
+$agents = getActiveAgents();
 
 include '../../includes/header.php';
 ?>
@@ -96,11 +93,7 @@ include '../../includes/header.php';
             <div class="card-body">
                 <?php if (!empty($errors)): ?>
                     <div class="alert alert-danger">
-                        <ul class="mb-0">
-                            <?php foreach ($errors as $error): ?>
-                                <li><?php echo $error; ?></li>
-                            <?php endforeach; ?>
-                        </ul>
+                        <ul class="mb-0"><?php foreach ($errors as $error): ?><li><?php echo $error; ?></li><?php endforeach; ?></ul>
                     </div>
                 <?php endif; ?>
 
@@ -156,6 +149,37 @@ include '../../includes/header.php';
                         </div>
                     </div>
 
+                    <!-- Agent Assignment -->
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Assigned Agent (Susu Collector)</label>
+                            <select name="agent_id" class="form-select">
+                                <option value="">Select Agent</option>
+                                <?php foreach ($agents as $agt): ?>
+                                    <option value="<?php echo $agt['id']; ?>" 
+                                        <?php echo (isset($_POST['agent_id']) ? $_POST['agent_id'] : ($customer['agent_id'] ?? '')) == $agt['id'] ? 'selected' : ''; ?>>
+                                        <?php echo htmlspecialchars($agt['first_name'] . ' ' . $agt['last_name'] . ' - ' . $agt['phone']); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label">Marital Status</label>
+                            <select name="marital_status" class="form-select">
+                                <option value="">Select</option>
+                                <?php 
+                                $statuses = ['Single', 'Married', 'Divorced', 'Widowed'];
+                                $current_status = $_POST['marital_status'] ?? $customer['marital_status'] ?? '';
+                                foreach ($statuses as $st): 
+                                ?>
+                                    <option value="<?php echo $st; ?>" <?php echo $current_status == $st ? 'selected' : ''; ?>>
+                                        <?php echo $st; ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                    </div>
+
                     <hr>
                     <h6 class="text-primary mb-3">Location Information</h6>
                     <div class="row">
@@ -202,21 +226,6 @@ include '../../includes/header.php';
                             <label class="form-label">Occupation</label>
                             <input type="text" name="occupation" class="form-control" 
                                    value="<?php echo htmlspecialchars($_POST['occupation'] ?? $customer['occupation'] ?? ''); ?>">
-                        </div>
-                        <div class="col-md-3 mb-3">
-                            <label class="form-label">Marital Status</label>
-                            <select name="marital_status" class="form-select">
-                                <option value="">Select</option>
-                                <?php 
-                                $statuses = ['Single', 'Married', 'Divorced', 'Widowed'];
-                                $current_status = $_POST['marital_status'] ?? $customer['marital_status'] ?? '';
-                                foreach ($statuses as $st): 
-                                ?>
-                                    <option value="<?php echo $st; ?>" <?php echo $current_status == $st ? 'selected' : ''; ?>>
-                                        <?php echo $st; ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </select>
                         </div>
                     </div>
 

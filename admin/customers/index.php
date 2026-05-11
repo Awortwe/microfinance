@@ -102,9 +102,9 @@ include '../../includes/header.php';
         <!-- Filters -->
         <form method="GET" class="row g-3 mb-4">
             <div class="col-md-4">
-                <input type="text" name="search" class="form-control" 
-                       placeholder="Search by name, phone, or code..."
-                       value="<?php echo htmlspecialchars($search); ?>">
+                <input type="text" name="search" class="form-control"
+                    placeholder="Search by name, phone, or code..."
+                    value="<?php echo htmlspecialchars($search); ?>">
             </div>
             <div class="col-md-3">
                 <select name="status" class="form-select">
@@ -139,6 +139,7 @@ include '../../includes/header.php';
                         <th>Gender</th>
                         <th>City</th>
                         <th>Status</th>
+                        <th>Agent</th>
                         <th>Created By</th>
                         <th>Date</th>
                         <th>Actions</th>
@@ -147,65 +148,68 @@ include '../../includes/header.php';
                 <tbody>
                     <?php if (count($customers) > 0): ?>
                         <?php foreach ($customers as $customer): ?>
-                        <tr>
-                            <td><code><?php echo htmlspecialchars($customer['customer_code']); ?></code></td>
-                            <td>
-                                <div class="d-flex align-items-center">
-                                    <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2" 
-                                         style="width: 35px; height: 35px; font-size: 0.75rem; font-weight: 600;">
-                                        <?php echo strtoupper(substr($customer['first_name'], 0, 1) . substr($customer['last_name'], 0, 1)); ?>
+                            <tr>
+                                <td><code><?php echo htmlspecialchars($customer['customer_code']); ?></code></td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2"
+                                            style="width: 35px; height: 35px; font-size: 0.75rem; font-weight: 600;">
+                                            <?php echo strtoupper(substr($customer['first_name'], 0, 1) . substr($customer['last_name'], 0, 1)); ?>
+                                        </div>
+                                        <div>
+                                            <strong><?php echo htmlspecialchars($customer['first_name'] . ' ' . $customer['last_name']); ?></strong>
+                                            <?php if ($customer['business_name']): ?>
+                                                <br><small class="text-muted"><?php echo htmlspecialchars($customer['business_name']); ?></small>
+                                            <?php endif; ?>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <strong><?php echo htmlspecialchars($customer['first_name'] . ' ' . $customer['last_name']); ?></strong>
-                                        <?php if ($customer['business_name']): ?>
-                                            <br><small class="text-muted"><?php echo htmlspecialchars($customer['business_name']); ?></small>
+                                </td>
+                                <td><?php echo htmlspecialchars($customer['phone']); ?></td>
+                                <td><?php echo $customer['gender'] ?? 'N/A'; ?></td>
+                                <td><?php echo $customer['city'] ? htmlspecialchars($customer['city']) : 'N/A'; ?></td>
+                                <td><?php echo getStatusBadge($customer['status'], 'customer'); ?></td>
+                                <td>
+                                    <small><?php echo getAgentName($customer['agent_id']); ?></small>
+                                </td>
+                                <td>
+                                    <small><?php echo htmlspecialchars($customer['created_by_name'] ?? 'N/A'); ?></small>
+                                </td>
+                                <td>
+                                    <small><?php echo date('M d, Y', strtotime($customer['created_at'])); ?></small>
+                                </td>
+                                <td>
+                                    <div class="btn-group">
+                                        <a href="view.php?id=<?php echo $customer['id']; ?>"
+                                            class="btn btn-sm btn-info" title="View Details">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        <a href="edit.php?id=<?php echo $customer['id']; ?>"
+                                            class="btn btn-sm btn-warning" title="Edit Customer">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <?php if ($customer['status'] != 'blacklisted'): ?>
+                                            <a href="blacklist.php?id=<?php echo $customer['id']; ?>"
+                                                class="btn btn-sm btn-dark"
+                                                title="Blacklist"
+                                                onclick="return confirm('Are you sure you want to blacklist this customer?')">
+                                                <i class="bi bi-shield-x"></i>
+                                            </a>
+                                        <?php endif; ?>
+                                        <?php if ($customer['status'] == 'inactive'): ?>
+                                            <a href="delete.php?id=<?php echo $customer['id']; ?>"
+                                                class="btn btn-sm btn-danger"
+                                                title="Delete"
+                                                onclick="return confirm('Are you sure you want to delete this customer? This action cannot be undone.')">
+                                                <i class="bi bi-trash"></i>
+                                            </a>
                                         <?php endif; ?>
                                     </div>
-                                </div>
-                            </td>
-                            <td><?php echo htmlspecialchars($customer['phone']); ?></td>
-                            <td><?php echo $customer['gender'] ?? 'N/A'; ?></td>
-                            <td><?php echo $customer['city'] ? htmlspecialchars($customer['city']) : 'N/A'; ?></td>
-                            <td><?php echo getStatusBadge($customer['status'], 'customer'); ?></td>
-                            <td>
-                                <small><?php echo htmlspecialchars($customer['created_by_name'] ?? 'N/A'); ?></small>
-                            </td>
-                            <td>
-                                <small><?php echo date('M d, Y', strtotime($customer['created_at'])); ?></small>
-                            </td>
-                            <td>
-                                <div class="btn-group">
-                                    <a href="view.php?id=<?php echo $customer['id']; ?>" 
-                                       class="btn btn-sm btn-info" title="View Details">
-                                        <i class="bi bi-eye"></i>
-                                    </a>
-                                    <a href="edit.php?id=<?php echo $customer['id']; ?>" 
-                                       class="btn btn-sm btn-warning" title="Edit Customer">
-                                        <i class="bi bi-pencil"></i>
-                                    </a>
-                                    <?php if ($customer['status'] != 'blacklisted'): ?>
-                                    <a href="blacklist.php?id=<?php echo $customer['id']; ?>" 
-                                       class="btn btn-sm btn-dark" 
-                                       title="Blacklist"
-                                       onclick="return confirm('Are you sure you want to blacklist this customer?')">
-                                        <i class="bi bi-shield-x"></i>
-                                    </a>
-                                    <?php endif; ?>
-                                    <?php if ($customer['status'] == 'inactive'): ?>
-                                    <a href="delete.php?id=<?php echo $customer['id']; ?>" 
-                                       class="btn btn-sm btn-danger" 
-                                       title="Delete"
-                                       onclick="return confirm('Are you sure you want to delete this customer? This action cannot be undone.')">
-                                        <i class="bi bi-trash"></i>
-                                    </a>
-                                    <?php endif; ?>
-                                </div>
-                            </td>
-                        </tr>
+                                </td>
+                            </tr>
                         <?php endforeach; ?>
                     <?php else: ?>
                         <tr>
-                            <td colspan="9" class="text-center py-4">
+                            <td colspan="10" class="text-center py-4">
                                 <i class="bi bi-people display-4 text-muted"></i>
                                 <p class="text-muted mb-0 mt-2">No customers found</p>
                                 <a href="add.php" class="btn btn-sm btn-primary mt-2">
@@ -217,7 +221,7 @@ include '../../includes/header.php';
                 </tbody>
             </table>
         </div>
-        
+
         <div class="text-muted mt-2">
             <small>Showing <strong><?php echo count($customers); ?></strong> customers</small>
         </div>

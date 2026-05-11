@@ -148,9 +148,9 @@ include '../../includes/header.php';
             </div>
         </form>
 
-        <!-- History Table -->
+        <!-- History Table - NO datatable class -->
         <div class="table-responsive">
-            <table class="table table-hover datatable">
+            <table class="table table-hover">
                 <thead class="table-light">
                     <tr>
                         <th>Loan #</th>
@@ -204,11 +204,21 @@ include '../../includes/header.php';
                             <td colspan="8" class="text-center py-4">
                                 <i class="bi bi-inbox display-4 text-muted"></i>
                                 <p class="text-muted mb-0">No loan history found</p>
+                                <?php if (!empty($_GET)): ?>
+                                    <a href="history.php" class="btn btn-sm btn-outline-primary mt-2">Clear Filters</a>
+                                <?php endif; ?>
                             </td>
                         </tr>
                     <?php endif; ?>
                 </tbody>
             </table>
+        </div>
+        
+        <div class="text-muted mt-2">
+            <small>Showing <strong><?php echo count($loans_history); ?></strong> loans</small>
+            <?php if (!empty($_GET)): ?>
+                <a href="history.php" class="btn btn-sm btn-outline-secondary ms-2">Clear Filters</a>
+            <?php endif; ?>
         </div>
     </div>
 </div>

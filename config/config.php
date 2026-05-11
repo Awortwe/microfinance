@@ -620,6 +620,31 @@ function companyEmail() {
     } catch (Exception $e) {}
     return COMPANY_EMAIL;
 }
+
+/**
+ * Generate agent code
+ */
+function generateAgentCode() {
+    $result = dbSingle("SELECT COALESCE(MAX(id), 0) + 1 as next_id FROM agents");
+    return 'AGT' . str_pad($result['next_id'], 6, '0', STR_PAD_LEFT);
+}
+
+/**
+ * Get agent full name
+ */
+function getAgentName($agent_id) {
+    if (!$agent_id) return 'N/A';
+    $result = dbSingle("SELECT CONCAT(first_name, ' ', last_name) as full_name FROM agents WHERE id = :id", 
+        [':id' => $agent_id]);
+    return $result ? $result['full_name'] : 'N/A';
+}
+
+/**
+ * Get all active agents for dropdown
+ */
+function getActiveAgents() {
+    return dbQuery("SELECT id, agent_code, first_name, last_name, phone FROM agents WHERE status = 'active' ORDER BY first_name");
+}
 // ============================================
 // END OF CONFIGURATION
 // ============================================

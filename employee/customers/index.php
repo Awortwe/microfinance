@@ -6,11 +6,9 @@ $page_title = 'My Customers';
 $base_path = '../../';
 $breadcrumb = ['Dashboard' => '../dashboard.php'];
 
-// Get search parameters
 $search = $_GET['search'] ?? '';
 $status = $_GET['status'] ?? 'active';
 
-// Build query
 $query = "SELECT * FROM customers WHERE created_by = :employee_id";
 $params = [':employee_id' => $_SESSION['user_id']];
 
@@ -36,7 +34,6 @@ $query .= " ORDER BY created_at DESC";
 
 $customers = dbQuery($query, $params);
 
-// Get summary counts
 $counts = dbSingle(
     "SELECT 
     COUNT(*) as total,
@@ -49,7 +46,6 @@ $counts = dbSingle(
 include '../../includes/header.php';
 ?>
 
-<!-- Summary Cards -->
 <div class="row mb-4">
     <div class="col-md-4">
         <div class="card bg-primary text-white">
@@ -85,7 +81,6 @@ include '../../includes/header.php';
         </a>
     </div>
     <div class="card-body">
-        <!-- Search & Filters -->
         <form method="GET" class="row g-3 mb-4">
             <div class="col-md-6">
                 <div class="input-group">
@@ -109,7 +104,6 @@ include '../../includes/header.php';
             </div>
         </form>
 
-        <!-- Customers Table (NO datatable class - plain table with PHP filters) -->
         <div class="table-responsive">
             <table class="table table-hover">
                 <thead class="table-light">
@@ -120,6 +114,7 @@ include '../../includes/header.php';
                         <th>City</th>
                         <th>Occupation</th>
                         <th>Status</th>
+                        <th>Agent</th>
                         <th>Date Added</th>
                         <th>Actions</th>
                     </tr>
@@ -147,6 +142,7 @@ include '../../includes/header.php';
                             <td><?php echo $customer['city'] ? htmlspecialchars($customer['city']) : 'N/A'; ?></td>
                             <td><?php echo $customer['occupation'] ? htmlspecialchars($customer['occupation']) : 'N/A'; ?></td>
                             <td><?php echo getStatusBadge($customer['status'], 'customer'); ?></td>
+                            <td><small><?php echo getAgentName($customer['agent_id']); ?></small></td>
                             <td><small><?php echo date('M d, Y', strtotime($customer['created_at'])); ?></small></td>
                             <td>
                                 <div class="btn-group">
@@ -164,7 +160,7 @@ include '../../includes/header.php';
                         <?php endforeach; ?>
                     <?php else: ?>
                         <tr>
-                            <td colspan="8" class="text-center py-4">
+                            <td colspan="9" class="text-center py-4">
                                 <i class="bi bi-people display-4 text-muted"></i>
                                 <p class="text-muted mb-0 mt-2">No customers found</p>
                                 <a href="add.php" class="btn btn-sm btn-primary mt-2">

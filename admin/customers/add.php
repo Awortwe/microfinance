@@ -28,14 +28,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $date_of_birth = $_POST['date_of_birth'] ?? '';
     $gender = $_POST['gender'] ?? '';
     $marital_status = $_POST['marital_status'] ?? '';
+    $agent_id = $_POST['agent_id'] ?? null;
     
-    // Validate
     if (empty($first_name)) $errors[] = 'First name is required';
     if (empty($last_name)) $errors[] = 'Last name is required';
     if (empty($phone)) $errors[] = 'Phone number is required';
     
     if (empty($errors)) {
-        // Generate customer code
         $result = dbSingle("SELECT COALESCE(MAX(id), 0) + 1 as next_id FROM customers");
         $customer_code = 'CUS' . str_pad($result['next_id'], 6, '0', STR_PAD_LEFT);
         
@@ -43,11 +42,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             "INSERT INTO customers 
              (customer_code, first_name, last_name, email, phone, alternate_phone,
               address, city, region, id_type, id_number, occupation, business_name,
-              business_address, date_of_birth, gender, marital_status, created_by)
+              business_address, date_of_birth, gender, marital_status, agent_id, created_by)
              VALUES 
              (:code, :first_name, :last_name, :email, :phone, :alt_phone,
               :address, :city, :region, :id_type, :id_number, :occupation, :business_name,
-              :business_address, :date_of_birth, :gender, :marital_status, :created_by)",
+              :business_address, :date_of_birth, :gender, :marital_status, :agent_id, :created_by)",
             [
                 ':code' => $customer_code,
                 ':first_name' => $first_name,
@@ -66,6 +65,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 ':date_of_birth' => $date_of_birth ?: null,
                 ':gender' => $gender ?: null,
                 ':marital_status' => $marital_status ?: null,
+                ':agent_id' => $agent_id ?: null,
                 ':created_by' => $_SESSION['user_id']
             ]
         );
@@ -77,6 +77,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         redirect('view.php?id=' . $customer_id);
     }
 }
+
+// Get active agents for dropdown
+$agents = getActiveAgents();
 
 include '../../includes/header.php';
 ?>
@@ -151,6 +154,32 @@ include '../../includes/header.php';
                         </div>
                     </div>
 
+                    <!-- Agent Assignment -->
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Assigned Agent (Susu Collector)</label>
+                            <select name="agent_id" class="form-select">
+                                <option value="">Select Agent</option>
+                                <?php foreach ($agents as $agt): ?>
+                                    <option value="<?php echo $agt['id']; ?>" 
+                                        <?php echo (isset($_POST['agent_id']) && $_POST['agent_id'] == $agt['id']) ? 'selected' : ''; ?>>
+                                        <?php echo htmlspecialchars($agt['first_name'] . ' ' . $agt['last_name'] . ' - ' . $agt['phone']); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label">Marital Status</label>
+                            <select name="marital_status" class="form-select">
+                                <option value="">Select</option>
+                                <option value="Single">Single</option>
+                                <option value="Married">Married</option>
+                                <option value="Divorced">Divorced</option>
+                                <option value="Widowed">Widowed</option>
+                            </select>
+                        </div>
+                    </div>
+
                     <hr>
                     <h6 class="text-primary mb-3">Location Information</h6>
                     <div class="row">
@@ -177,11 +206,11 @@ include '../../includes/header.php';
                             <label class="form-label">ID Type</label>
                             <select name="id_type" class="form-select">
                                 <option value="">Select ID Type</option>
-                                <option value="Ghana Card" <?php echo (isset($_POST['id_type']) && $_POST['id_type'] == 'Ghana Card') ? 'selected' : ''; ?>>Ghana Card</option>
-                                <option value="Voter ID" <?php echo (isset($_POST['id_type']) && $_POST['id_type'] == 'Voter ID') ? 'selected' : ''; ?>>Voter ID</option>
-                                <option value="Passport" <?php echo (isset($_POST['id_type']) && $_POST['id_type'] == 'Passport') ? 'selected' : ''; ?>>Passport</option>
-                                <option value="Driver License" <?php echo (isset($_POST['id_type']) && $_POST['id_type'] == 'Driver License') ? 'selected' : ''; ?>>Driver License</option>
-                                <option value="NHIS" <?php echo (isset($_POST['id_type']) && $_POST['id_type'] == 'NHIS') ? 'selected' : ''; ?>>NHIS</option>
+                                <option value="Ghana Card">Ghana Card</option>
+                                <option value="Voter ID">Voter ID</option>
+                                <option value="Passport">Passport</option>
+                                <option value="Driver License">Driver License</option>
+                                <option value="NHIS">NHIS</option>
                             </select>
                         </div>
                         <div class="col-md-3 mb-3">
@@ -193,16 +222,6 @@ include '../../includes/header.php';
                             <label class="form-label">Occupation</label>
                             <input type="text" name="occupation" class="form-control" 
                                    value="<?php echo htmlspecialchars($_POST['occupation'] ?? ''); ?>">
-                        </div>
-                        <div class="col-md-3 mb-3">
-                            <label class="form-label">Marital Status</label>
-                            <select name="marital_status" class="form-select">
-                                <option value="">Select</option>
-                                <option value="Single" <?php echo (isset($_POST['marital_status']) && $_POST['marital_status'] == 'Single') ? 'selected' : ''; ?>>Single</option>
-                                <option value="Married" <?php echo (isset($_POST['marital_status']) && $_POST['marital_status'] == 'Married') ? 'selected' : ''; ?>>Married</option>
-                                <option value="Divorced" <?php echo (isset($_POST['marital_status']) && $_POST['marital_status'] == 'Divorced') ? 'selected' : ''; ?>>Divorced</option>
-                                <option value="Widowed" <?php echo (isset($_POST['marital_status']) && $_POST['marital_status'] == 'Widowed') ? 'selected' : ''; ?>>Widowed</option>
-                            </select>
                         </div>
                     </div>
 

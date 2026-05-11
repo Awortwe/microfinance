@@ -11,10 +11,10 @@ $breadcrumb = [
 
 $account_id = $_GET['account_id'] ?? 0;
 
-// Get account details
+// Get account details with customer agent info
 $account = dbSingle(
     "SELECT sa.*, CONCAT(c.first_name, ' ', c.last_name) as customer_name,
-     c.phone, c.customer_code, c.address
+     c.phone, c.customer_code, c.address, c.agent_id
      FROM savings_accounts sa
      JOIN customers c ON sa.customer_id = c.id
      WHERE sa.id = :id",
@@ -26,11 +26,13 @@ if (!$account) {
     redirect('index.php');
 }
 
-// Get transactions
+// Get transactions with agent info
 $transactions = dbQuery(
-    "SELECT * FROM savings_transactions 
-     WHERE account_id = :account_id 
-     ORDER BY transaction_date DESC, transaction_time DESC",
+    "SELECT st.*, CONCAT(a.first_name, ' ', a.last_name) as agent_name
+     FROM savings_transactions st
+     LEFT JOIN agents a ON st.agent_id = a.id
+     WHERE st.account_id = :account_id 
+     ORDER BY st.transaction_date DESC, st.transaction_time DESC",
     [':account_id' => $account_id]
 );
 
@@ -48,6 +50,7 @@ include '../../includes/header.php';
                     <tr><td><strong>Phone:</strong></td><td><?php echo htmlspecialchars($account['phone']); ?></td></tr>
                     <tr><td><strong>Type:</strong></td><td><?php echo ucfirst($account['account_type']); ?></td></tr>
                     <tr><td><strong>Balance:</strong></td><td><strong class="text-success"><?php echo formatMoney($account['balance']); ?></strong></td></tr>
+                    <tr><td><strong>Agent:</strong></td><td><?php echo getAgentName($account['agent_id']); ?></td></tr>
                     <tr><td><strong>Status:</strong></td><td><?php echo getStatusBadge($account['status'], 'savings'); ?></td></tr>
                     <tr><td><strong>Opened:</strong></td><td><?php echo date('M d, Y', strtotime($account['opened_date'])); ?></td></tr>
                 </table>
@@ -80,6 +83,7 @@ include '../../includes/header.php';
                                 <th>Date</th>
                                 <th>Type</th>
                                 <th>Description</th>
+                                <th>Agent</th>
                                 <th>Amount</th>
                                 <th>Balance</th>
                             </tr>
@@ -101,6 +105,9 @@ include '../../includes/header.php';
                                         </span>
                                     </td>
                                     <td><?php echo htmlspecialchars($trans['description'] ?? '-'); ?></td>
+                                    <td>
+                                        <small><?php echo $trans['agent_name'] ? htmlspecialchars($trans['agent_name']) : 'N/A'; ?></small>
+                                    </td>
                                     <td class="<?php echo in_array($trans['transaction_type'], ['deposit', 'interest']) ? 'text-success' : 'text-danger'; ?>">
                                         <strong>
                                             <?php echo in_array($trans['transaction_type'], ['deposit', 'interest']) ? '+' : '-'; ?>
@@ -112,7 +119,7 @@ include '../../includes/header.php';
                                 <?php endforeach; ?>
                             <?php else: ?>
                                 <tr>
-                                    <td colspan="5" class="text-center">No transactions yet</td>
+                                    <td colspan="6" class="text-center">No transactions yet</td>
                                 </tr>
                             <?php endif; ?>
                         </tbody>
