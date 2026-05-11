@@ -196,6 +196,7 @@ include '../../includes/header.php';
 </div>
 
 <!-- Customer Growth Chart -->
+<?php if (count($growth) > 0): ?>
 <div class="row mb-4">
     <div class="col-12">
         <div class="card">
@@ -208,6 +209,7 @@ include '../../includes/header.php';
         </div>
     </div>
 </div>
+<?php endif; ?>
 
 <!-- Customers Table -->
 <div class="card">
@@ -217,7 +219,8 @@ include '../../includes/header.php';
     </div>
     <div class="card-body">
         <div class="table-responsive">
-            <table class="table table-hover datatable">
+            <!-- NO datatable class - plain table with PHP filters -->
+            <table class="table table-hover">
                 <thead class="table-light">
                     <tr>
                         <th>Code</th>
@@ -279,7 +282,8 @@ include '../../includes/header.php';
                         <tr>
                             <td colspan="13" class="text-center py-4">
                                 <i class="bi bi-people display-4 text-muted"></i>
-                                <p class="text-muted mb-0 mt-2">No customers found</p>
+                                <p class="text-muted mb-0 mt-2">No customers found matching your criteria</p>
+                                <a href="customer_report.php" class="btn btn-sm btn-outline-primary mt-2">Clear Filters</a>
                             </td>
                         </tr>
                     <?php endif; ?>
@@ -300,6 +304,12 @@ include '../../includes/header.php';
                 <?php endif; ?>
             </table>
         </div>
+        
+        <?php if (!empty($_GET)): ?>
+        <div class="mt-2">
+            <a href="customer_report.php" class="btn btn-sm btn-outline-secondary">Clear All Filters</a>
+        </div>
+        <?php endif; ?>
     </div>
 </div>
 

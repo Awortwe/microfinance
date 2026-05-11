@@ -85,7 +85,8 @@ include '../../includes/header.php';
     </div>
     <div class="card-body">
         <div class="table-responsive">
-            <table class="table table-hover datatable">
+            <!-- NO datatable class - plain table -->
+            <table class="table table-hover">
                 <thead class="table-light">
                     <tr>
                         <th>Code</th>
