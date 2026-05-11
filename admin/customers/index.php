@@ -128,9 +128,9 @@ include '../../includes/header.php';
             </div>
         </form>
 
-        <!-- Customers Table -->
+        <!-- Customers Table (NO datatable class - plain table) -->
         <div class="table-responsive">
-            <table class="table table-hover datatable">
+            <table class="table table-hover">
                 <thead class="table-light">
                     <tr>
                         <th>Code</th>
@@ -224,4 +224,4 @@ include '../../includes/header.php';
     </div>
 </div>
 
-<?php include ('../../includes/footer.php'); ?>
+<?php include '../../includes/footer.php'; ?>

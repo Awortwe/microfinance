@@ -109,9 +109,9 @@ include '../../includes/header.php';
             </div>
         </form>
 
-        <!-- Customers Table -->
+        <!-- Customers Table (NO datatable class - plain table with PHP filters) -->
         <div class="table-responsive">
-            <table class="table table-hover datatable">
+            <table class="table table-hover">
                 <thead class="table-light">
                     <tr>
                         <th>Code</th>
@@ -175,6 +175,13 @@ include '../../includes/header.php';
                     <?php endif; ?>
                 </tbody>
             </table>
+        </div>
+        
+        <div class="text-muted mt-2">
+            <small>Showing <strong><?php echo count($customers); ?></strong> customers</small>
+            <?php if (!empty($_GET)): ?>
+                <a href="index.php" class="btn btn-sm btn-outline-secondary ms-2">Clear Filters</a>
+            <?php endif; ?>
         </div>
     </div>
 </div>
