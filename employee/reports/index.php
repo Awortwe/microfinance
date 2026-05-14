@@ -77,40 +77,65 @@ include '../../includes/header.php';
 
 <!-- Report Cards -->
 <div class="row">
-    <div class="col-md-4 mb-4">
+    <div class="col-md-3 mb-4">
         <div class="card h-100">
             <div class="card-body text-center">
                 <i class="bi bi-calendar-check display-3 text-primary"></i>
                 <h5 class="mt-3">Daily Report</h5>
-                <p class="text-muted">View your daily collection summary including loan repayments and savings deposits</p>
-                <a href="daily.php" class="btn btn-primary">
-                    <i class="bi bi-eye"></i> View Daily Report
+                <p class="text-muted">View your daily collection summary</p>
+                <a href="daily.php" class="btn btn-primary btn-sm">
+                    <i class="bi bi-eye"></i> View
+                </a>
+                <a href="pdf/daily_pdf.php" class="btn btn-danger btn-sm" target="_blank">
+                    <i class="bi bi-file-pdf"></i> PDF
                 </a>
             </div>
         </div>
     </div>
     
-    <div class="col-md-4 mb-4">
+    <div class="col-md-3 mb-4">
         <div class="card h-100">
             <div class="card-body text-center">
                 <i class="bi bi-person-lines-fill display-3 text-success"></i>
                 <h5 class="mt-3">Customer Report</h5>
-                <p class="text-muted">View your customer list with their savings and loan summaries</p>
-                <a href="customer.php" class="btn btn-success">
-                    <i class="bi bi-eye"></i> View Customer Report
+                <p class="text-muted">View your customer list with summaries</p>
+                <a href="customer.php" class="btn btn-success btn-sm">
+                    <i class="bi bi-eye"></i> View
+                </a>
+                <a href="pdf/customer_pdf.php" class="btn btn-danger btn-sm" target="_blank">
+                    <i class="bi bi-file-pdf"></i> PDF
                 </a>
             </div>
         </div>
     </div>
     
-    <div class="col-md-4 mb-4">
+    <div class="col-md-3 mb-4">
         <div class="card h-100">
             <div class="card-body text-center">
                 <i class="bi bi-trophy display-3 text-warning"></i>
                 <h5 class="mt-3">My Performance</h5>
-                <p class="text-muted">Track your performance metrics including collections, customers, and loans</p>
-                <a href="my_performance.php" class="btn btn-warning">
-                    <i class="bi bi-eye"></i> View Performance
+                <p class="text-muted">Track your performance metrics</p>
+                <a href="my_performance.php" class="btn btn-warning btn-sm">
+                    <i class="bi bi-eye"></i> View
+                </a>
+                <a href="pdf/performance_pdf.php" class="btn btn-danger btn-sm" target="_blank">
+                    <i class="bi bi-file-pdf"></i> PDF
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 mb-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="bi bi-collection display-3 text-info"></i>
+                <h5 class="mt-3">Collection History</h5>
+                <p class="text-muted">View your collection history</p>
+                <a href="../collections/history.php" class="btn btn-info btn-sm">
+                    <i class="bi bi-eye"></i> View
+                </a>
+                <a href="pdf/collections_pdf.php" class="btn btn-danger btn-sm" target="_blank">
+                    <i class="bi bi-file-pdf"></i> PDF
                 </a>
             </div>
         </div>

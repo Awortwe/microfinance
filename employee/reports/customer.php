@@ -10,10 +10,10 @@ $breadcrumb = [
 ];
 
 $employee_id = $_SESSION['user_id'];
+$search = $_GET['search'] ?? '';
 
-// Get all my customers with their account summaries
-$customers = dbQuery(
-    "SELECT 
+// Build query with search
+$query = "SELECT 
     c.*,
     (SELECT COUNT(*) FROM savings_accounts WHERE customer_id = c.id AND status = 'active') as savings_count,
     (SELECT COALESCE(SUM(balance), 0) FROM savings_accounts WHERE customer_id = c.id AND status = 'active') as total_savings,
@@ -23,10 +23,22 @@ $customers = dbQuery(
     (SELECT COALESCE(SUM(balance), 0) FROM loans WHERE customer_id = c.id AND status IN ('active', 'disbursed')) as outstanding_loans,
     (SELECT COALESCE(SUM(amount_paid), 0) FROM loans WHERE customer_id = c.id) as total_repaid
     FROM customers c
-    WHERE c.created_by = :employee_id AND c.status = 'active'
-    ORDER BY c.first_name ASC",
-    [':employee_id' => $employee_id]
-);
+    WHERE c.created_by = :employee_id AND c.status = 'active'";
+$params = [':employee_id' => $employee_id];
+
+if ($search) {
+    $query .= " AND (c.first_name LIKE :search1 OR c.last_name LIKE :search2 OR c.phone LIKE :search3 OR c.customer_code LIKE :search4 OR c.city LIKE :search5)";
+    $searchTerm = "%$search%";
+    $params[':search1'] = $searchTerm;
+    $params[':search2'] = $searchTerm;
+    $params[':search3'] = $searchTerm;
+    $params[':search4'] = $searchTerm;
+    $params[':search5'] = $searchTerm;
+}
+
+$query .= " ORDER BY c.first_name ASC";
+
+$customers = dbQuery($query, $params);
 
 // Get summary totals
 $total_customers = count($customers);
@@ -77,13 +89,43 @@ include '../../includes/header.php';
 </div>
 
 <div class="card">
-    <div class="card-header d-flex justify-content-between align-items-center">
-        <h5 class="mb-0"><i class="bi bi-person-lines-fill"></i> My Customers Report</h5>
-        <button onclick="window.print()" class="btn btn-sm btn-secondary no-print">
-            <i class="bi bi-printer"></i> Print
-        </button>
+    <div class="card-header">
+        <div class="row align-items-center">
+            <div class="col-md-4">
+                <h5 class="mb-0"><i class="bi bi-person-lines-fill"></i> My Customers Report</h5>
+            </div>
+            <div class="col-md-4">
+                <form method="GET" class="d-flex">
+                    <input type="text" name="search" class="form-control form-control-sm" 
+                           placeholder="Search by name, phone, code, city..."
+                           value="<?php echo htmlspecialchars($search); ?>">
+                </form>
+            </div>
+            <div class="col-md-4 text-end">
+                <div class="btn-group">
+                    <?php if ($search): ?>
+                    <a href="customer.php" class="btn btn-sm btn-outline-secondary">
+                        <i class="bi bi-x-circle"></i> Clear
+                    </a>
+                    <?php endif; ?>
+                    <button onclick="window.print()" class="btn btn-sm btn-secondary">
+                        <i class="bi bi-printer"></i> Print
+                    </button>
+                    <a href="pdf/customer_pdf.php?search=<?php echo urlencode($search); ?>" 
+                       class="btn btn-sm btn-danger" target="_blank">
+                        <i class="bi bi-file-pdf"></i> PDF
+                    </a>
+                </div>
+            </div>
+        </div>
     </div>
     <div class="card-body">
+        <?php if ($search): ?>
+        <div class="alert alert-info py-2 mb-3">
+            <small>Filtered by: <strong>"<?php echo htmlspecialchars($search); ?>"</strong> - <?php echo count($customers); ?> results</small>
+        </div>
+        <?php endif; ?>
+        
         <div class="table-responsive">
             <table class="table table-hover">
                 <thead class="table-light">
@@ -140,7 +182,7 @@ include '../../includes/header.php';
                             </td>
                             <td>
                                 <a href="../customers/view.php?id=<?php echo $customer['id']; ?>" 
-                                   class="btn btn-sm btn-info" title="View Details">
+                                   class="btn btn-sm btn-info" title="View">
                                     <i class="bi bi-eye"></i>
                                 </a>
                             </td>
@@ -151,6 +193,9 @@ include '../../includes/header.php';
                             <td colspan="12" class="text-center py-4">
                                 <i class="bi bi-people display-4 text-muted"></i>
                                 <p class="text-muted mb-0 mt-2">No customers found</p>
+                                <?php if ($search): ?>
+                                    <a href="customer.php" class="btn btn-sm btn-outline-primary mt-2">Clear Search</a>
+                                <?php endif; ?>
                             </td>
                         </tr>
                     <?php endif; ?>

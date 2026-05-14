@@ -11,6 +11,7 @@ $breadcrumb = [
 
 $employee_id = $_SESSION['user_id'];
 $date = $_GET['date'] ?? date('Y-m-d');
+$search = $_GET['search'] ?? '';
 
 // My collections for the day
 $summary = dbSingle(
@@ -30,37 +31,47 @@ $summary = dbSingle(
     ]
 );
 
-// Get loan repayments for the day
+// Build search condition
+$searchCondition = '';
+$searchParams = [':emp' => $employee_id, ':date' => $date];
+if ($search) {
+    $searchCondition = " AND (c.first_name LIKE :search1 OR c.last_name LIKE :search2 OR l.loan_number LIKE :search3)";
+    $searchTerm = "%$search%";
+    $searchParams[':search1'] = $searchTerm;
+    $searchParams[':search2'] = $searchTerm;
+    $searchParams[':search3'] = $searchTerm;
+}
+
+// Get loan repayments for the day with search
 $repayments = dbQuery(
     "SELECT lr.*, CONCAT(c.first_name, ' ', c.last_name) as customer_name, l.loan_number
      FROM loan_repayments lr
      JOIN loans l ON lr.loan_id = l.id
      JOIN customers c ON l.customer_id = c.id
-     WHERE lr.processed_by = :emp AND DATE(lr.payment_date) = :date
+     WHERE lr.processed_by = :emp AND DATE(lr.payment_date) = :date $searchCondition
      ORDER BY lr.payment_time ASC",
-    [':emp' => $employee_id, ':date' => $date]
+    $searchParams
 );
 
-// Get savings deposits for the day
+// Build search condition for deposits
+$depositSearchParams = [':emp' => $employee_id, ':date' => $date];
+$depositSearchCondition = '';
+if ($search) {
+    $depositSearchCondition = " AND (c.first_name LIKE :search1 OR c.last_name LIKE :search2 OR sa.account_number LIKE :search3)";
+    $depositSearchParams[':search1'] = $searchTerm;
+    $depositSearchParams[':search2'] = $searchTerm;
+    $depositSearchParams[':search3'] = $searchTerm;
+}
+
+// Get savings deposits for the day with search
 $deposits = dbQuery(
     "SELECT st.*, CONCAT(c.first_name, ' ', c.last_name) as customer_name, sa.account_number
      FROM savings_transactions st
      JOIN savings_accounts sa ON st.account_id = sa.id
      JOIN customers c ON sa.customer_id = c.id
-     WHERE st.processed_by = :emp AND DATE(st.transaction_date) = :date AND st.transaction_type = 'deposit'
+     WHERE st.processed_by = :emp AND DATE(st.transaction_date) = :date AND st.transaction_type = 'deposit' $depositSearchCondition
      ORDER BY st.transaction_time ASC",
-    [':emp' => $employee_id, ':date' => $date]
-);
-
-// Get withdrawals for the day
-$withdrawals = dbQuery(
-    "SELECT st.*, CONCAT(c.first_name, ' ', c.last_name) as customer_name, sa.account_number
-     FROM savings_transactions st
-     JOIN savings_accounts sa ON st.account_id = sa.id
-     JOIN customers c ON sa.customer_id = c.id
-     WHERE st.processed_by = :emp AND DATE(st.transaction_date) = :date AND st.transaction_type = 'withdrawal'
-     ORDER BY st.transaction_time ASC",
-    [':emp' => $employee_id, ':date' => $date]
+    $depositSearchParams
 );
 
 include '../../includes/header.php';
@@ -68,24 +79,47 @@ include '../../includes/header.php';
 
 <div class="card mb-4 no-print">
     <div class="card-body">
-        <form method="GET" class="row g-2 align-items-end">
-            <div class="col-md-4">
+        <form method="GET" class="row g-3 align-items-end">
+            <div class="col-md-3">
                 <label class="form-label">Select Date</label>
                 <input type="date" name="date" class="form-control" value="<?php echo $date; ?>">
             </div>
             <div class="col-md-4">
-                <button type="submit" class="btn btn-primary">
-                    <i class="bi bi-filter"></i> View Report
-                </button>
-                <button onclick="window.print()" class="btn btn-secondary">
-                    <i class="bi bi-printer"></i> Print
-                </button>
+                <label class="form-label">Search</label>
+                <input type="text" name="search" class="form-control" 
+                       placeholder="Search by customer name, loan number..."
+                       value="<?php echo htmlspecialchars($search); ?>">
+            </div>
+            <div class="col-md-5">
+                <label class="form-label">&nbsp;</label>
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-filter"></i> View Report
+                    </button>
+                    <?php if (!empty($search) || $date != date('Y-m-d')): ?>
+                    <a href="daily.php" class="btn btn-outline-secondary">
+                        <i class="bi bi-x-circle"></i> Clear
+                    </a>
+                    <?php endif; ?>
+                    <button onclick="window.print()" class="btn btn-secondary">
+                        <i class="bi bi-printer"></i> Print
+                    </button>
+                    <a href="pdf/daily_pdf.php?date=<?php echo $date; ?>&search=<?php echo urlencode($search); ?>" 
+                       class="btn btn-danger" target="_blank">
+                        <i class="bi bi-file-pdf"></i> PDF
+                    </a>
+                </div>
             </div>
         </form>
     </div>
 </div>
 
-<h4 class="mb-4">Daily Report: <?php echo date('l, F d, Y', strtotime($date)); ?></h4>
+<h4 class="mb-4">
+    Daily Report: <?php echo date('l, F d, Y', strtotime($date)); ?>
+    <?php if ($search): ?>
+        <small class="text-muted">- Filtered: "<?php echo htmlspecialchars($search); ?>"</small>
+    <?php endif; ?>
+</h4>
 
 <div class="row mb-4">
     <div class="col-md-3">
@@ -127,7 +161,10 @@ include '../../includes/header.php';
     <!-- Loan Repayments -->
     <div class="col-md-6 mb-4">
         <div class="card">
-            <div class="card-header"><h6 class="mb-0"><i class="bi bi-cash-coin"></i> Loan Repayments</h6></div>
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h6 class="mb-0"><i class="bi bi-cash-coin"></i> Loan Repayments</h6>
+                <small class="text-muted"><?php echo count($repayments); ?> records</small>
+            </div>
             <div class="card-body">
                 <?php if (count($repayments) > 0): ?>
                     <table class="table table-sm">
@@ -145,11 +182,11 @@ include '../../includes/header.php';
                             <?php endforeach; ?>
                         </tbody>
                         <tfoot class="table-light fw-bold">
-                            <tr><td colspan="3">Total</td><td class="text-success"><?php echo formatMoney($summary['loan_collections']); ?></td></tr>
+                            <tr><td colspan="3">Total</td><td class="text-success"><?php echo formatMoney(array_sum(array_column($repayments, 'amount'))); ?></td></tr>
                         </tfoot>
                     </table>
                 <?php else: ?>
-                    <p class="text-muted text-center">No loan repayments</p>
+                    <p class="text-muted text-center">No loan repayments found</p>
                 <?php endif; ?>
             </div>
         </div>
@@ -158,7 +195,10 @@ include '../../includes/header.php';
     <!-- Savings Deposits -->
     <div class="col-md-6 mb-4">
         <div class="card">
-            <div class="card-header"><h6 class="mb-0"><i class="bi bi-piggy-bank"></i> Savings Deposits</h6></div>
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h6 class="mb-0"><i class="bi bi-piggy-bank"></i> Savings Deposits</h6>
+                <small class="text-muted"><?php echo count($deposits); ?> records</small>
+            </div>
             <div class="card-body">
                 <?php if (count($deposits) > 0): ?>
                     <table class="table table-sm">
@@ -176,11 +216,11 @@ include '../../includes/header.php';
                             <?php endforeach; ?>
                         </tbody>
                         <tfoot class="table-light fw-bold">
-                            <tr><td colspan="3">Total</td><td class="text-success"><?php echo formatMoney($summary['savings_deposits']); ?></td></tr>
+                            <tr><td colspan="3">Total</td><td class="text-success"><?php echo formatMoney(array_sum(array_column($deposits, 'amount'))); ?></td></tr>
                         </tfoot>
                     </table>
                 <?php else: ?>
-                    <p class="text-muted text-center">No savings deposits</p>
+                    <p class="text-muted text-center">No savings deposits found</p>
                 <?php endif; ?>
             </div>
         </div>

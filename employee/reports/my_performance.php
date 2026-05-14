@@ -15,6 +15,7 @@ $employee_name = $_SESSION['full_name'];
 // Get date range
 $month = $_GET['month'] ?? date('m');
 $year = $_GET['year'] ?? date('Y');
+$search = $_GET['search'] ?? '';
 
 // Overall statistics
 $overall = dbSingle(
@@ -44,19 +45,33 @@ $overall = dbSingle(
     ]
 );
 
-// Daily collections for the month
+// Build search condition for daily collections
+$searchCondition = '';
+$searchParams = [':emp' => $employee_id, ':month' => $month, ':year' => $year];
+if ($search) {
+    $searchCondition = " AND (c.first_name LIKE :search1 OR c.last_name LIKE :search2 OR l.loan_number LIKE :search3)";
+    $searchTerm = "%$search%";
+    $searchParams[':search1'] = $searchTerm;
+    $searchParams[':search2'] = $searchTerm;
+    $searchParams[':search3'] = $searchTerm;
+}
+
+// Daily collections for the month with search
 $daily_collections = dbQuery(
     "SELECT 
-    DATE(payment_date) as date,
-    COALESCE(SUM(amount), 0) as total,
+    DATE(lr.payment_date) as date,
+    COALESCE(SUM(lr.amount), 0) as total,
     COUNT(*) as count
-    FROM loan_repayments 
-    WHERE processed_by = :emp 
-    AND MONTH(payment_date) = :month 
-    AND YEAR(payment_date) = :year
-    GROUP BY DATE(payment_date)
+    FROM loan_repayments lr
+    JOIN loans l ON lr.loan_id = l.id
+    JOIN customers c ON l.customer_id = c.id
+    WHERE lr.processed_by = :emp 
+    AND MONTH(lr.payment_date) = :month 
+    AND YEAR(lr.payment_date) = :year
+    $searchCondition
+    GROUP BY DATE(lr.payment_date)
     ORDER BY date",
-    [':emp' => $employee_id, ':month' => $month, ':year' => $year]
+    $searchParams
 );
 
 // Monthly performance for the year
@@ -101,11 +116,12 @@ foreach ($daily_collections as $day) {
 include '../../includes/header.php';
 ?>
 
-<!-- Month/Year Selector -->
+<!-- Month/Year Selector & Search -->
 <div class="card mb-4 no-print">
     <div class="card-body">
-        <form method="GET" class="row g-3">
-            <div class="col-md-3">
+        <form method="GET" class="row g-3 align-items-end">
+            <div class="col-md-2">
+                <label class="form-label">Month</label>
                 <select name="month" class="form-select">
                     <?php for ($m = 1; $m <= 12; $m++): ?>
                         <option value="<?php echo str_pad($m, 2, '0', STR_PAD_LEFT); ?>" 
@@ -115,7 +131,8 @@ include '../../includes/header.php';
                     <?php endfor; ?>
                 </select>
             </div>
-            <div class="col-md-3">
+            <div class="col-md-2">
+                <label class="form-label">Year</label>
                 <select name="year" class="form-select">
                     <?php for ($y = date('Y') - 2; $y <= date('Y'); $y++): ?>
                         <option value="<?php echo $y; ?>" <?php echo $year == $y ? 'selected' : ''; ?>>
@@ -125,14 +142,30 @@ include '../../includes/header.php';
                 </select>
             </div>
             <div class="col-md-3">
-                <button type="submit" class="btn btn-primary w-100">
-                    <i class="bi bi-filter"></i> View
-                </button>
+                <label class="form-label">Search Daily Collections</label>
+                <input type="text" name="search" class="form-control" 
+                       placeholder="Search by customer, loan #..."
+                       value="<?php echo htmlspecialchars($search); ?>">
             </div>
-            <div class="col-md-3">
-                <button onclick="window.print()" class="btn btn-secondary w-100">
-                    <i class="bi bi-printer"></i> Print
-                </button>
+            <div class="col-md-5">
+                <label class="form-label">&nbsp;</label>
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-filter"></i> View
+                    </button>
+                    <?php if ($search || $month != date('m') || $year != date('Y')): ?>
+                    <a href="my_performance.php" class="btn btn-outline-secondary">
+                        <i class="bi bi-x-circle"></i> Clear
+                    </a>
+                    <?php endif; ?>
+                    <button onclick="window.print()" class="btn btn-secondary">
+                        <i class="bi bi-printer"></i> Print
+                    </button>
+                    <a href="pdf/performance_pdf.php?month=<?php echo $month; ?>&year=<?php echo $year; ?>&search=<?php echo urlencode($search); ?>" 
+                       class="btn btn-danger" target="_blank">
+                        <i class="bi bi-file-pdf"></i> PDF
+                    </a>
+                </div>
             </div>
         </form>
     </div>
@@ -147,6 +180,9 @@ include '../../includes/header.php';
             <i class="bi bi-calendar3"></i> 
             <?php echo date('F Y', mktime(0, 0, 0, $month, 1, $year)); ?>
         </span>
+        <?php if ($search): ?>
+            <span class="ms-3 badge bg-warning">Filtered: "<?php echo htmlspecialchars($search); ?>"</span>
+        <?php endif; ?>
     </h5>
 </div>
 
@@ -251,8 +287,9 @@ include '../../includes/header.php';
 <div class="row mt-4">
     <div class="col-12">
         <div class="card">
-            <div class="card-header">
+            <div class="card-header d-flex justify-content-between align-items-center">
                 <h6 class="mb-0"><i class="bi bi-calendar3"></i> Daily Collections - <?php echo date('F Y', mktime(0, 0, 0, $month, 1, $year)); ?></h6>
+                <small class="text-muted"><?php echo count($daily_collections); ?> days</small>
             </div>
             <div class="card-body">
                 <div class="table-responsive">

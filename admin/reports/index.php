@@ -84,10 +84,11 @@ include '../../includes/header.php';
             <div class="card-body text-center">
                 <i class="bi bi-pie-chart display-4 text-primary"></i>
                 <h5 class="mt-3">Portfolio Report</h5>
-                <p class="text-muted">View loan portfolio summary, risk analysis, and performance metrics</p>
-                <a href="portfolio.php" class="btn btn-primary">
-                    <i class="bi bi-eye"></i> View Report
-                </a>
+                <p class="text-muted">Loan portfolio summary, risk analysis, and performance metrics</p>
+                <div class="d-flex gap-2 justify-content-center">
+                    <a href="portfolio.php" class="btn btn-primary"><i class="bi bi-eye"></i> View</a>
+                    <a href="pdf/portfolio_pdf.php" class="btn btn-danger" target="_blank"><i class="bi bi-file-pdf"></i> PDF</a>
+                </div>
             </div>
         </div>
     </div>
@@ -97,10 +98,11 @@ include '../../includes/header.php';
             <div class="card-body text-center">
                 <i class="bi bi-cash-stack display-4 text-success"></i>
                 <h5 class="mt-3">Profit & Loss</h5>
-                <p class="text-muted">Analyze income from interest and fees versus operational expenses</p>
-                <a href="profit_loss.php" class="btn btn-success">
-                    <i class="bi bi-eye"></i> View Report
-                </a>
+                <p class="text-muted">Income from interest and fees versus operational expenses</p>
+                <div class="d-flex gap-2 justify-content-center">
+                    <a href="profit_loss.php" class="btn btn-success"><i class="bi bi-eye"></i> View</a>
+                    <a href="pdf/profit_loss_pdf.php" class="btn btn-danger" target="_blank"><i class="bi bi-file-pdf"></i> PDF</a>
+                </div>
             </div>
         </div>
     </div>
@@ -110,10 +112,11 @@ include '../../includes/header.php';
             <div class="card-body text-center">
                 <i class="bi bi-arrow-left-right display-4 text-info"></i>
                 <h5 class="mt-3">Transactions Log</h5>
-                <p class="text-muted">View all financial transactions including deposits, withdrawals, and repayments</p>
-                <a href="transactions.php" class="btn btn-info">
-                    <i class="bi bi-eye"></i> View Report
-                </a>
+                <p class="text-muted">All financial transactions including deposits, withdrawals, repayments</p>
+                <div class="d-flex gap-2 justify-content-center">
+                    <a href="transactions.php" class="btn btn-info"><i class="bi bi-eye"></i> View</a>
+                    <a href="pdf/transactions_pdf.php" class="btn btn-danger" target="_blank"><i class="bi bi-file-pdf"></i> PDF</a>
+                </div>
             </div>
         </div>
     </div>
@@ -124,9 +127,10 @@ include '../../includes/header.php';
                 <i class="bi bi-journal-text display-4 text-warning"></i>
                 <h5 class="mt-3">Audit Trail</h5>
                 <p class="text-muted">Track all system activities, user actions, and changes made</p>
-                <a href="audit_trail.php" class="btn btn-warning">
-                    <i class="bi bi-eye"></i> View Report
-                </a>
+                <div class="d-flex gap-2 justify-content-center">
+                    <a href="audit_trail.php" class="btn btn-warning"><i class="bi bi-eye"></i> View</a>
+                    <a href="pdf/audit_trail_pdf.php" class="btn btn-danger" target="_blank"><i class="bi bi-file-pdf"></i> PDF</a>
+                </div>
             </div>
         </div>
     </div>
@@ -136,13 +140,14 @@ include '../../includes/header.php';
             <div class="card-body text-center">
                 <i class="bi bi-people-fill display-4 text-danger"></i>
                 <h5 class="mt-3">Customer Report</h5>
-                <p class="text-muted">Customer demographics, growth trends, and account summaries</p>
-                <a href="customer_report.php" class="btn btn-danger">
-                    <i class="bi bi-eye"></i> View Report
-                </a>
+                <p class="text-muted">Customer demographics, growth trends, account summaries</p>
+                <div class="d-flex gap-2 justify-content-center">
+                    <a href="customer_report.php" class="btn btn-danger"><i class="bi bi-eye"></i> View</a>
+                    <a href="pdf/customer_pdf.php" class="btn btn-danger" target="_blank"><i class="bi bi-file-pdf"></i> PDF</a>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
-<?php include '../../includes/footer.php' ?>
+<?php include '../../includes/footer.php'; ?>

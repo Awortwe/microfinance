@@ -108,7 +108,7 @@ if ($current_dir_header == 'admin' || $current_dir_header == 'employee') {
             flex: 1;
             overflow-y: auto;
             overflow-x: hidden;
-            padding: 0 0 20px 0;
+            padding: 0 0 80px 0;
         }
 
         .sidebar-wrapper::-webkit-scrollbar {
